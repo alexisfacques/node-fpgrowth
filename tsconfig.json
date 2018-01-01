@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "strictNullChecks": false,
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": true,
+        "outDir": "dist",
+        "strict": true,
+        "lib": [
+            "es5",
+            "es6",
+            "esnext"
+        ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

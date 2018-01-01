@@ -1,0 +1,38 @@
+{
+  "name": "node-fpgrowth",
+  "version": "0.0.1",
+  "description": "FPGrowth Algorithm implementation in TypeScript / JavaScript.",
+  "main": "dist/fpgrowth.js",
+  "types": "dist/fpgrowth.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "./node_modules/typescript/bin/tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexisfacques/Node-FPGrowth.git"
+  },
+  "keywords": [
+    "fpgrowth",
+    "algorithm",
+    "frequent",
+    "data",
+    "itemset",
+    "mining",
+    "association",
+    "rules"
+  ],
+  "author": "Alexis Facques <mail@alexisfacques.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexisfacques/Node-FPGrowth/issues"
+  },
+  "homepage": "https://github.com/alexisfacques/Node-FPGrowth#readme",
+  "dependencies": {
+    "events": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^8.5.2",
+    "typescript": "^2.6.2"
+  }
+}
