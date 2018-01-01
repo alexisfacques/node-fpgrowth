@@ -126,8 +126,8 @@ export class FPTree<T> {
         let conditionalTreeSupports: ItemsCount = {};
         // Getting all prefixPaths of the given item. On pushing a new item to a prefix path, a callback
         // function is called, allowing us to update the item support.
-        let prefixPaths: IPrefixPath<T>[] = this._getPrefixPaths(start, (i: T, count: number) => {
-            conditionalTreeSupports[JSON.stringify(i)] = (conditionalTreeSupports[JSON.stringify(i)] || 1) + 1;
+        let prefixPaths: IPrefixPath<T>[] = this._getPrefixPaths(start, start.support, (i: T, count: number) => {
+            conditionalTreeSupports[JSON.stringify(i)] = (conditionalTreeSupports[JSON.stringify(i)] || 0) + count;
         });
 
         // FP-Tree is built from the conditional tree supports and the processed prefix paths.
@@ -151,7 +151,7 @@ export class FPTree<T> {
 
         let start: FPNode<T> = this._firstInserted[JSON.stringify(item)];
         if(!start) return [];
-        return this._getPrefixPaths(start);
+        return this._getPrefixPaths(start,start.support);
     }
 
     /**
@@ -165,7 +165,7 @@ export class FPTree<T> {
     public getPrefixPath( node: FPNode<T>, onPushingNewItem?: (item: T, count: number) => void ): IPrefixPath<T> {
         if(!this._isInit) throw new Error('Error building the FPTree');
 
-        let path: T[] = this._getPrefixPath(node,onPushingNewItem);
+        let path: T[] = this._getPrefixPath(node,node.support,onPushingNewItem);
         if( path.length === 0 ) return;
         return {
             support: node.support,
@@ -223,28 +223,30 @@ export class FPTree<T> {
      * RECURSIVE CALL - Returns the prefix path of each node of the same type until there is no node-link anymore.
      *
      * @param  {FPNode<T>} node             The node of which you want the prefix path.
+     * @param  {number}    count            The support of the stating node (which is node).
      * @param  {Function}  onPushingNewItem Callback function to keep track of items added to the prefix path.
      * @return {IPrefixPath<T>[]}           The result you expect.
      */
-    private _getPrefixPaths( node: FPNode<T>, onPushingNewItem?: (item: T, count: number) => void, prefixPaths: IPrefixPath<T>[] = []): IPrefixPath<T>[] {
+    private _getPrefixPaths( node: FPNode<T>, count: number, onPushingNewItem?: (item: T, count: number) => void, prefixPaths: IPrefixPath<T>[] = []): IPrefixPath<T>[] {
         let prefixPath: IPrefixPath<T> = this.getPrefixPath(node,onPushingNewItem);
         if(prefixPath) prefixPaths.push(prefixPath);
 
         if(!node.nextSameItemNode) return prefixPaths;
-        return this._getPrefixPaths(node.nextSameItemNode,onPushingNewItem,prefixPaths);
+        return this._getPrefixPaths(node.nextSameItemNode,count,onPushingNewItem,prefixPaths);
     }
 
     /**
      * RECURSIVE CALL - Returns the prefix path (as a set of items) of the tree from a given node.
      *
      * @param  {FPNode<T>}   node               The node to start the prefix.
+     * @param  {number}      count              The support of the stating node (which is node).
      * @param  {Function}    onPushingNewItem   Callback function to keep track of items added to the prefix path.
      * @return {T[]}                            The result you expect.
      */
-    private _getPrefixPath( node: FPNode<T>, onPushingNewItem?: (item: T, count: number) => void ): T[] {
+    private _getPrefixPath( node: FPNode<T>, count: number, onPushingNewItem?: (item: T, count: number) => void ): T[] {
         if(node.parent && node.parent.parent) {
-            if(onPushingNewItem) onPushingNewItem(node.parent.item, node.support);
-            return [node.parent.item].concat(this._getPrefixPath(node.parent,onPushingNewItem));
+            if(onPushingNewItem) onPushingNewItem(node.parent.item,count);
+            return [node.parent.item].concat(this._getPrefixPath(node.parent,count,onPushingNewItem));
         }
         return [];
     }
