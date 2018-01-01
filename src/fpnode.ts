@@ -55,6 +55,7 @@ export class FPNode<T> {
 
     /**
      * Returns the child FPNode representing a given item, if any. Returns undefined if it does not exist.
+     * 
      * @param  {T}         item The item.
      * @return {FPNode<T>}      The FPNode you expect, or undefined.
      */

@@ -24,11 +24,36 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
 
     private _itemsets: Itemset<T>[] = [];
 
+    /**
+     * FPGrowth is an algorithm for frequent item set mining and association rule
+     * earning over transactional databases.
+     * It was proposed by Han et al. (2000). FPGrowth is a very fast and memory efficient algorithm. It uses a special internal structure called an FP-Tree.
+     *
+     * @param  {number} _support 0 < _support < 1. Minimum support of itemsets to mine.
+     */
+
+    /**
+     * [constructor description]
+     * @param  {number} private_support [description]
+     * @return {[type]}                 [description]
+     */
     constructor( private _support: number /*, private _confidence: number*/ ) {
         super();
     }
 
+    /**
+     * Executes the FPGrowth Algorithm.
+     * You can keep track of frequent itemsets as they are mined by listening to the 'data' event on the FPGrowth object.
+     * All mined itemsets, as well as basic execution stats, are returned at the end of the execution through a callback function or a Promise.
+     *
+     * @param  {T[][]}              transactions The transactions from which you want to mine itemsets.
+     * @param  {IAprioriResults<T>} cb           Callback function returning the results.
+     * @return {Promise<IAprioriResults<T>>}     Promise returning the results.
+     */
     public exec( transactions: T[][], cb?: (result: IFPGrowthResults<T>) => any ): Promise<IFPGrowthResults<T>> {
+        // Starting execution timer.
+        let time = process.hrtime();
+
         this._transactions = transactions;
         // Relative support
         this._support = Math.ceil(this._support * transactions.length);
@@ -41,19 +66,35 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
             // Building the FP-Tree...
             let tree: FPTree<T> = new FPTree<T>(this._supports,this._support).fromTransactions(this._transactions);
 
-            console.log(this._fpGrowth(tree,this._transactions.length));
+            let frequentItemsets: Itemset<T>[] = this._fpGrowth(tree,this._transactions.length);
+            let elapsedTime = process.hrtime(time);
+
+            // Formatting results.
+            let result: IFPGrowthResults<T> = {
+                itemsets: frequentItemsets,
+                executionTime: Math.round((elapsedTime[0]*1000)+(elapsedTime[1]/1000000))
+            };
+
+            if(cb) cb(result);
+            resolve(result);
         });
     }
 
+    /**
+     * RECURSIVE CALL - Returns mined itemset from each conditional sub-FPTree of the given free until no FPTree can be created anymore.
+     *
+     * @param  {FPTree<T>}  tree          The FPTree you want to mine
+     * @param  {number}     prefixSupport The support of the FPTree's current prefix.
+     * @param  {T[]}        prefix        The current prefix associated with the FPTree.
+     * @return {Itemset<T>}               The mined itemsets.
+     */
     private _fpGrowth( tree: FPTree<T>, prefixSupport: number, prefix: T[] = [] ): Itemset<T>[] {
         // Test whether or not the FP-Tree is single path.
         // If it is, we can short-cut the mining process pretty efficiently.
-        //let singlePath: FPNode<T>[] = tree.getSinglePath();
-        //if(singlePath) return this._handleSinglePathTree(singlePath); //TODO.
+        let singlePath: FPNode<T>[] = tree.getSinglePath();
+        // TODO: if(singlePath) return this._handleSinglePath(singlePath, prefix);
 
         return tree.headers.reduce<Itemset<T>[]>( (itemsets: Itemset<T>[], item: T) => {
-            console.log(`Support of item ${item}: ${tree.supports[JSON.stringify(item)]} VS. Prefix support: ${prefixSupport}`);
-
             let support: number = Math.min(tree.supports[JSON.stringify(item)],prefixSupport);
 
             let currentPrefix: T[] = prefix.slice(0);
@@ -67,10 +108,25 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         }, []);
     }
 
-    private _handleSinglePathTree( singlePath: FPNode<T>[] ): void {
-
+    /**
+     * Handles the mining of frequent itemsets over a single path tree.
+     *
+     * @param  {FPNode<T>[]} singlePath The given single path.
+     * @param  {T[]}         prefix     The prefix associated with the path.
+     * @return {Itemset<T>}             The mined itemsets.
+     */
+    private _handleSinglePath( singlePath: FPNode<T>[], prefix: T[] ): Itemset<T>[] {
+        // TODO
+        return [];
     }
 
+    /**
+     * Returns and emit through an event a formatted mined frequent itemset.
+     *
+     * @param  {T[]}        itemset The items of the frequent itemset.
+     * @param  {number}     support The support of the itemset.
+     * @return {Itemset<T>}         The formatted itemset.
+     */
     private _getFrequentItemset( itemset: T[], support: number ): Itemset<T> {
         let ret: Itemset<T> = {
             items: itemset,
@@ -82,6 +138,7 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
 
     /**
      * Returns the occurence of single items in a given set of transactions.
+     *
      * @param  {T[][]}      transactions The set of transaction.
      * @return {ItemsCount}              Count of items (stringified items as keys).
      */
