@@ -55,7 +55,7 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         let time = process.hrtime();
 
         this._transactions = transactions;
-        // Relative support
+        // Relative support.
         this._support = Math.ceil(this._support * transactions.length);
         // First scan to determine the occurence of each unique item.
         this._supports = this._getDistinctItemsCount(this._transactions);
