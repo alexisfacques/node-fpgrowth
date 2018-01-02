@@ -13,10 +13,6 @@ Installation is done using the [`npm install` command](https://docs.npmjs.com/ge
 $ npm install --save node-fpgrowth
 ```
 
-### Performances
-
-
-
 ### Example of use
 
 ```js

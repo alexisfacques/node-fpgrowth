@@ -47,7 +47,7 @@ export class FPTree<T> {
      * @param  {ItemsCount} supports     The support count of each unique items to be inserted the FPTree.
      * @param  {number}     support      The minimum support of each frequent itemset we want to mine.
      */
-    constructor( public readonly supports: ItemsCount, private _support: number,) {
+    constructor( public readonly supports: ItemsCount, private _support: number ) {
     }
 
     /**
@@ -63,15 +63,19 @@ export class FPTree<T> {
         // Items not meeting the minimum support are pruned.
         transactions.forEach( (transaction: T[]) => {
             let items: T[] = transaction
+                // Pruning.
                 .filter( (item: T) => this.supports[JSON.stringify(item)] >= this._support)
+                // Sorting.
                 .sort( (a: T, b: T) => {
                     let res: number = this.supports[JSON.stringify(b)] - this.supports[JSON.stringify(a)];
                     if(res == 0) return JSON.stringify(b).localeCompare(JSON.stringify(a));
                     return res;
                 });
+            // Pushing formatted transaction to the tree.
             this._addTransaction(items);
         });
 
+        // Generating headers.
         this._headers = this._getHeaderList();
 
         this._isInit = true;
@@ -100,10 +104,11 @@ export class FPTree<T> {
                 });
                 */
 
-            // Adding each prefix path to the tree.
+            // Pushing each prefix path to the tree.
             this._addTransaction(items);
         });
 
+        // Generating headers.
         this._headers = this._getHeaderList();
         this._isInit = true;
         return this;

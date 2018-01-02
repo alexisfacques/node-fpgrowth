@@ -19,9 +19,14 @@ export interface Itemset<T> {
 }
 
 export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
+    /**
+     * The transactions from which you want to mine itemsets.
+     */
     private _transactions: T[][];
-    private _supports: ItemsCount;
 
+    /**
+     * Output of the algorithm: The mined frequent itemsets.
+     */
     private _itemsets: Itemset<T>[] = [];
 
     /**
@@ -30,12 +35,6 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
      * It was proposed by Han et al. (2000). FPGrowth is a very fast and memory efficient algorithm. It uses a special internal structure called an FP-Tree.
      *
      * @param  {number} _support 0 < _support < 1. Minimum support of itemsets to mine.
-     */
-
-    /**
-     * [constructor description]
-     * @param  {number} private_support [description]
-     * @return {[type]}                 [description]
      */
     constructor( private _support: number /*, private _confidence: number*/ ) {
         super();
@@ -58,15 +57,18 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         // Relative support.
         this._support = Math.ceil(this._support * transactions.length);
         // First scan to determine the occurence of each unique item.
-        this._supports = this._getDistinctItemsCount(this._transactions);
+        let supports: ItemsCount = this._getDistinctItemsCount(this._transactions);
 
         return new Promise<IFPGrowthResults<T>>( (resolve, reject) => {
             let time = process.hrtime();
 
             // Building the FP-Tree...
-            let tree: FPTree<T> = new FPTree<T>(this._supports,this._support).fromTransactions(this._transactions);
+            let tree: FPTree<T> = new FPTree<T>(supports,this._support).fromTransactions(this._transactions);
 
+            // Running the algorithm on the main tree.
+            // All the frequent itemsets are returned at the end of the execution.
             let frequentItemsets: Itemset<T>[] = this._fpGrowth(tree,this._transactions.length);
+
             let elapsedTime = process.hrtime(time);
 
             // Formatting results.
@@ -81,9 +83,9 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
     }
 
     /**
-     * RECURSIVE CALL - Returns mined itemset from each conditional sub-FPTree of the given free until no FPTree can be created anymore.
+     * RECURSIVE CALL - Returns mined itemset from each conditional sub-FPTree of the given FPtree.
      *
-     * @param  {FPTree<T>}  tree          The FPTree you want to mine
+     * @param  {FPTree<T>}  tree          The FPTree you want to mine.
      * @param  {number}     prefixSupport The support of the FPTree's current prefix.
      * @param  {T[]}        prefix        The current prefix associated with the FPTree.
      * @return {Itemset<T>}               The mined itemsets.
@@ -94,15 +96,24 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         let singlePath: FPNode<T>[] = tree.getSinglePath();
         // TODO: if(singlePath) return this._handleSinglePath(singlePath, prefix);
 
+        // For each header, ordered ascendingly by their support, determining the prefix paths.
+        // of each each they represent.
+        // These prefix paths represent new transactions to mine in a new FPTree.
+        // If no prefix path can be found, the algorithm stops.
         return tree.headers.reduce<Itemset<T>[]>( (itemsets: Itemset<T>[], item: T) => {
             let support: number = Math.min(tree.supports[JSON.stringify(item)],prefixSupport);
 
+            // Array copy.
             let currentPrefix: T[] = prefix.slice(0);
             currentPrefix.push(item);
 
+            // Prefix is a mined itemset.
             itemsets.push(this._getFrequentItemset(currentPrefix,support));
 
+            // Method below generates the prefix paths of the current item, as well as the support of
+            // each item composing the prefix paths, and returns a new conditional FPTree if one can be created.
             let childTree: FPTree<T> = tree.getConditionalFPTree(item);
+            // If a conditional tree can be mined... mine it recursively.
             if(childTree) return itemsets.concat(this._fpGrowth(childTree,support,currentPrefix));
             return itemsets;
         }, []);
