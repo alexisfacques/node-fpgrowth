@@ -97,9 +97,8 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         // TODO: if(singlePath) return this._handleSinglePath(singlePath, prefix);
 
         // For each header, ordered ascendingly by their support, determining the prefix paths.
-        // of each each they represent.
         // These prefix paths represent new transactions to mine in a new FPTree.
-        // If no prefix path can be found, the algorithm stops.
+        // If no prefix path can be mined, the algorithm stops.
         return tree.headers.reduce<Itemset<T>[]>( (itemsets: Itemset<T>[], item: T) => {
             let support: number = Math.min(tree.supports[JSON.stringify(item)],prefixSupport);
 
