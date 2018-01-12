@@ -1,7 +1,7 @@
 {
   "name": "node-fpgrowth",
-  "version": "0.2.0",
-  "description": "FPGrowth Algorithm implementation in TypeScript / JavaScript.",
+  "version": "1.0.0",
+  "description": "FPGrowth frequent itemset mining algorithm implementation in TypeScript / JavaScript.",
   "main": "dist/fpgrowth.js",
   "types": "dist/fpgrowth.d.ts",
   "scripts": {
@@ -20,7 +20,8 @@
     "itemset",
     "mining",
     "association",
-    "rules"
+    "rules",
+    "data mining"
   ],
   "author": "Alexis Facques <mail@alexisfacques.com>",
   "license": "MIT",
