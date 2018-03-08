@@ -60,8 +60,6 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         let supports: ItemsCount = this._getDistinctItemsCount(this._transactions);
 
         return new Promise<IFPGrowthResults<T>>( (resolve, reject) => {
-            let time = process.hrtime();
-
             // Building the FP-Tree...
             let tree: FPTree<T> = new FPTree<T>(supports,this._support).fromTransactions(this._transactions);
 

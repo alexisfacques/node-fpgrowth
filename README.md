@@ -1,5 +1,5 @@
 # Node-FPGrowth
-[FPGrowth Algorithm](https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Frequent_Pattern_Mining/The_FP-Growth_Algorithm) implementation in TypeScript / JavaScript.
+[FPGrowth Algorithm](https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Frequent_Pattern_Mining/The_FP-Growth_Algorithm) frequent itemset mining algorithm implementation in TypeScript / JavaScript.
 
 ## Getting Started
 
@@ -10,13 +10,14 @@ This is a [Node.js](https://nodejs.org/en/) module available through the [npm re
 Installation is done using the [`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
 
 ```bash
-$ npm install --save node-fpgrowth
+npm install --save node-fpgrowth
 ```
 
 ### Example of use
 
-```js
+In your TypeScript project, import and use `FPGrowth` as follows. Same example with a JavaScript syntax is available [here](./examples/example.js).
 
+```js
 import { FPGrowth, Itemset, IFPGrowthResults } from 'node-fpgrowth';
 
 let transactions: number[][] = [
@@ -46,6 +47,27 @@ fpgrowth.exec(transactions)
     });
 
 ```
+
+
+### Building from source
+
+- Clone this repository:
+  ```bash
+  git clone https://github.com/alexisfacques/Node-FPGrowth.git
+  cd Node-FPGrowth
+  ```
+- Install the project's dependencies with `npm`:
+  ```bash
+  npm install
+  ```
+- Compile the project's sources to NodeJS executable JavaScript:
+  ```bash
+  npm run tsc
+  ```
+- This should allow you to execute the given [example](./examples/example.js) as follows:
+  ```bash
+  npm test
+  ```
 
 ## License
 

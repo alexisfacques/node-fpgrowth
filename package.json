@@ -5,7 +5,7 @@
   "main": "dist/fpgrowth.js",
   "types": "dist/fpgrowth.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run tsc && node examples/example.js",
     "tsc": "./node_modules/typescript/bin/tsc"
   },
   "repository": {
