@@ -48,9 +48,7 @@ fpgrowth.exec(transactions)
 
 ```
 
-
-### Building from source
-
+### Building from source
 - Clone this repository:
   ```bash
   git clone https://github.com/alexisfacques/Node-FPGrowth.git
