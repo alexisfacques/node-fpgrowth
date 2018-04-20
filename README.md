@@ -17,8 +17,8 @@ npm install --save node-fpgrowth
 
 In your TypeScript project, import and use `FPGrowth` as follows. Same example with a JavaScript syntax is available [here](./examples/example.js).
 
-```js
-import { FPGrowth, Itemset, IFPGrowthResults } from 'node-fpgrowth';
+```typescript
+import { FPGrowth, Itemset } from 'node-fpgrowth';
 
 let transactions: number[][] = [
     [1,3,4],
@@ -46,23 +46,49 @@ fpgrowth.exec(transactions)
 
 ```
 
+**Node-FPGrowth** is compatible with [browserify](http://browserify.org/) and [webpack](https://webpack.js.org/).
+Alternatively, you can import/serve the browserified `fpgrowth-client.js` file found in the `dist` folder:
+
+```html
+<script src="./dist/fpgrowth-client.js"></script>
+<script>
+  var transactions = [
+      [1, 3, 4],
+      [2, 3, 5],
+      [1, 2, 3, 5],
+      [2, 5],
+      [1, 2, 3, 5]
+  ];
+
+  var fpg = new fpgrowth.FPGrowth(.4);
+
+  fpg.exec(transactions, function (itemsets) {
+      console.log(`Finished executing FPGrowth. ${itemsets.length} frequent itemset(s) were found.`);
+  });
+</script>
+```
+
 ### Building from source
 - Clone this repository:
   ```bash
   git clone https://github.com/alexisfacques/Node-FPGrowth.git
   cd Node-FPGrowth
   ```
-- Install the project's dependencies with `npm`:
+- Install the project's dependencies with:
   ```bash
   npm install
   ```
-- Compile the modules's sources to executable JavaScript:
+- Compile the module's sources to executable JavaScript:
   ```bash
   npm run tsc
   ```
-- This should compile the sources and execute the [example](./examples/example.js) bundled with the module:
+- This should run the [example](./examples/example.js) bundled with the module:
   ```bash
   npm test
+  ```
+- This should recreate a browserified version, `./dist/fpgrowth-client.js`, of the module:
+  ```bash
+  npm run browserify
   ```
 
 ## License

@@ -6,7 +6,8 @@
   "types": "dist/fpgrowth.d.ts",
   "scripts": {
     "test": "npm run tsc && node examples/example.js",
-    "tsc": "./node_modules/typescript/bin/tsc"
+    "tsc": "./node_modules/typescript/bin/tsc",
+    "browserify": "npm run tsc && node ./node_modules/browserify/bin/cmd.js dist/fpgrowth.js --standalone fpgrowth -o dist/fpgrowth-client.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@types/node": "^8.5.2",
+    "browserify": "^16.2.0",
     "typescript": "^2.6.2"
   }
 }
