@@ -37,12 +37,14 @@ export class FPNode<T> {
      * @param  {FPNode<T>} onNewChild Callback function to call if a child is actually created for the first time. It helps keeping track of Node-Links
      * @return {[type]}               The FPNode representing the given item.
      */
-    public upsertChild( item: T, onNewChild?: (child: FPNode<T>) => void ): FPNode<T> {
+    public upsertChild( item: T, onNewChild?: (child: FPNode<T>) => void, support: number = 1 ): FPNode<T> {
         let child: FPNode<T> = this.getChild(item);
 
         // If no child exists, creating a new node.
         if(!child) {
             child = new FPNode<T>(item,this);
+            child.support = support;
+            
             this._children.push(child);
             // Calls callback function if any.
             if(onNewChild) onNewChild(child);
@@ -55,7 +57,7 @@ export class FPNode<T> {
 
     /**
      * Returns the child FPNode representing a given item, if any. Returns undefined if it does not exist.
-     * 
+     *
      * @param  {T}         item The item.
      * @return {FPNode<T>}      The FPNode you expect, or undefined.
      */

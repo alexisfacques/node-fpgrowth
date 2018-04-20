@@ -1,6 +1,6 @@
 {
   "name": "node-fpgrowth",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "FPGrowth frequent itemset mining algorithm implementation in TypeScript / JavaScript.",
   "main": "dist/fpgrowth.js",
   "types": "dist/fpgrowth.d.ts",

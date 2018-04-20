@@ -72,7 +72,7 @@ export class FPTree<T> {
                     return res;
                 });
             // Pushing formatted transaction to the tree.
-            this._addTransaction(items);
+            this._addItems(items);
         });
 
         // Generating headers.
@@ -91,21 +91,21 @@ export class FPTree<T> {
     public fromPrefixPaths( prefixPaths: IPrefixPath<T>[] ): FPTree<T> {
         if(this._isInit) throw new Error('Error building the FPTree');
 
+        // Sorting the items of each transaction by their support, descendingly.
+        // Items not meeting the minimum support are pruned.
         prefixPaths.forEach( (prefixPath: IPrefixPath<T>) => {
             let items: T[] = prefixPath.path
-                // Items not meeting the minimum support are pruned.
+                // Pruning.
                 .filter( (item: T) => this.supports[JSON.stringify(item)] >= this._support)
-                /*
-                //Not mandatory, actually for displaying purposes only.
+                // Sorting.
                 .sort( (a: T, b: T) => {
                     let res: number = this.supports[JSON.stringify(b)] - this.supports[JSON.stringify(a)];
                     if(res == 0) return JSON.stringify(b).localeCompare(JSON.stringify(a));
                     return res;
                 });
-                */
 
             // Pushing each prefix path to the tree.
-            this._addTransaction(items);
+            this._addItems(items, prefixPath.support);
         });
 
         // Generating headers.
@@ -126,15 +126,16 @@ export class FPTree<T> {
         // Trivial pre-condition.
         if(!start) return null;
 
+        let s: number = this.supports[JSON.stringify(item)];
         // In order to make the conditional FPTree of the given item, we need both the prefix
         // paths of the item, as well as the support of each item which composes this sub-tree.
         let conditionalTreeSupports: ItemsCount = {};
         // Getting all prefixPaths of the given item. On pushing a new item to a prefix path, a callback
         // function is called, allowing us to update the item support.
-        let prefixPaths: IPrefixPath<T>[] = this._getPrefixPaths(start, start.support, (i: T, count: number) => {
+        let prefixPaths: IPrefixPath<T>[] = this._getPrefixPaths(start, s, (i: T, count: number) => {
             conditionalTreeSupports[JSON.stringify(i)] = (conditionalTreeSupports[JSON.stringify(i)] || 0) + count;
         });
-
+        
         // FP-Tree is built from the conditional tree supports and the processed prefix paths.
         let ret: FPTree<T> = new FPTree<T>(conditionalTreeSupports,this._support).fromPrefixPaths(prefixPaths);
 
@@ -204,14 +205,15 @@ export class FPTree<T> {
     /**
      * Inserts a sorted transaction to the FPTree.
      *
-     * @param {T[]} transaction The set of item you want to add.
+     * @param {T[]} items The set of sorted items you want to add (Either a transaction of a prefix part).
+     * @param {number} prefixSupport Optional: The base support to associate with the set of items.
      */
-    private _addTransaction( transaction: T[] ): void {
+    private _addItems( items: T[], prefixSupport: number = 1 ): void {
         // For each transaction, we start up from the root element.
         let current: FPNode<T> = this.root;
 
         // Keep in mind items are sorted by their support descendingly.
-        transaction.forEach( (item: T) => {
+        items.forEach( (item: T) => {
             // If current item is a child of current node, updating its support and returning the child.
             // Else creating a new item element and returing this new element.
             current = current.upsertChild(item, (child: FPNode<T>) => {
@@ -219,7 +221,7 @@ export class FPTree<T> {
                 // Keeping track of first and last inserted elements of this type on Node creation.
                 this._updateLastInserted(itemKey, child);
                 this._updateFirstInserted(itemKey, child);
-            });
+            }, prefixSupport);
         });
     }
 

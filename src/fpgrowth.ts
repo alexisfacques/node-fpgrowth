@@ -56,6 +56,7 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         this._transactions = transactions;
         // Relative support.
         this._support = Math.ceil(this._support * transactions.length);
+
         // First scan to determine the occurence of each unique item.
         let supports: ItemsCount = this._getDistinctItemsCount(this._transactions);
 
@@ -91,7 +92,7 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
     private _fpGrowth( tree: FPTree<T>, prefixSupport: number, prefix: T[] = [] ): Itemset<T>[] {
         // Test whether or not the FP-Tree is single path.
         // If it is, we can short-cut the mining process pretty efficiently.
-        let singlePath: FPNode<T>[] = tree.getSinglePath();
+        // TODO: let singlePath: FPNode<T>[] = tree.getSinglePath();
         // TODO: if(singlePath) return this._handleSinglePath(singlePath, prefix);
 
         // For each header, ordered ascendingly by their support, determining the prefix paths.
@@ -99,7 +100,6 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         // If no prefix path can be mined, the algorithm stops.
         return tree.headers.reduce<Itemset<T>[]>( (itemsets: Itemset<T>[], item: T) => {
             let support: number = Math.min(tree.supports[JSON.stringify(item)],prefixSupport);
-
             // Array copy.
             let currentPrefix: T[] = prefix.slice(0);
             currentPrefix.push(item);
