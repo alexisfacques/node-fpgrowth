@@ -40,10 +40,8 @@ fpgrowth.on('data', (itemset: Itemset<number>) => {
 
 // Execute FPGrowth on a given set of transactions.
 fpgrowth.exec(transactions)
-    .then( (result: IFPGrowthResults<number>) => {
-        // Returns both the collection of frequent itemsets and execution time in millisecond.
-        let frequentItemsets: Itemset<number>[] = result.itemsets;
-        let executionTime: number = result.executionTime;
+    .then( (itemsets: Itemset<number>[]) => {
+      // Returns an array representing the frequent itemsets.
     });
 
 ```
@@ -58,11 +56,11 @@ fpgrowth.exec(transactions)
   ```bash
   npm install
   ```
-- Compile the project's sources to NodeJS executable JavaScript:
+- Compile the modules's sources to executable JavaScript:
   ```bash
   npm run tsc
   ```
-- This should allow you to execute the given [example](./examples/example.js) as follows:
+- This should compile the sources and execute the [example](./examples/example.js) bundled with the module:
   ```bash
   npm test
   ```

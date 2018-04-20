@@ -8,7 +8,6 @@ var transactions = [
     [1, 2, 3, 5]
 ];
 
-
 // Execute FPGrowth with a minimum support of 40%.
 var fpgrowth = new fpgrowth.FPGrowth(.4);
 console.log(`Executing FPGrowth...`);
@@ -23,9 +22,7 @@ fpgrowth.on('data', function (itemset) {
 
 // Execute FPGrowth on a given set of transactions.
 fpgrowth.exec(transactions)
-    .then(function (result) {
-      // Returns both the collection of frequent itemsets and execution time in millisecond.
-      var frequentItemsets = result.itemsets;
-      var executionTime = result.executionTime;
-      console.log(`Finished executing FPGrowth. ${frequentItemsets.length} frequent itemsets were found in ${executionTime}ms.`);
+    .then(function (itemsets) {
+      // Returns an array representing the frequent itemsets.
+      console.log(`Finished executing FPGrowth. ${itemsets.length} frequent itemset(s) were found.`);
   });

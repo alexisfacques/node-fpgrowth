@@ -1,0 +1,11 @@
+src/
+node_modules/
+tsconfig.json
+
+*.swp
+*.swo
+*.log
+*.DS_Store
+.tmp
+.sass-cache
+.git

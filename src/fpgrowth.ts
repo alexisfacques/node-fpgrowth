@@ -1,16 +1,10 @@
 import { EventEmitter } from 'events';
-import { FPTree, IPrefixPath } from './fptree';
+import { FPTree, IPrefixPath, ItemsCount } from './fptree';
 import { FPNode } from './fpnode';
-import { ItemsCount } from './items-count';
 
 export interface IFPGrowthEvents<T> {
     on(event: 'data', listener: (itemset: Itemset<T>) => void): this;
     on(event: string, listener: Function): this;
-}
-
-export interface IFPGrowthResults<T> {
-    itemsets: Itemset<T>[],
-    executionTime: number
 }
 
 export interface Itemset<T> {
@@ -49,10 +43,7 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
      * @param  {IAprioriResults<T>} cb           Callback function returning the results.
      * @return {Promise<IAprioriResults<T>>}     Promise returning the results.
      */
-    public exec( transactions: T[][], cb?: (result: IFPGrowthResults<T>) => any ): Promise<IFPGrowthResults<T>> {
-        // Starting execution timer.
-        let time = process.hrtime();
-
+    public exec( transactions: T[][], cb?: (result: Itemset<T>[]) => any ): Promise<Itemset<T>[]> {
         this._transactions = transactions;
         // Relative support.
         this._support = Math.ceil(this._support * transactions.length);
@@ -60,21 +51,13 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
         // First scan to determine the occurence of each unique item.
         let supports: ItemsCount = this._getDistinctItemsCount(this._transactions);
 
-        return new Promise<IFPGrowthResults<T>>( (resolve, reject) => {
+        return new Promise<Itemset<T>[]>( (resolve, reject) => {
             // Building the FP-Tree...
             let tree: FPTree<T> = new FPTree<T>(supports,this._support).fromTransactions(this._transactions);
 
             // Running the algorithm on the main tree.
             // All the frequent itemsets are returned at the end of the execution.
-            let frequentItemsets: Itemset<T>[] = this._fpGrowth(tree,this._transactions.length);
-
-            let elapsedTime = process.hrtime(time);
-
-            // Formatting results.
-            let result: IFPGrowthResults<T> = {
-                itemsets: frequentItemsets,
-                executionTime: Math.round((elapsedTime[0]*1000)+(elapsedTime[1]/1000000))
-            };
+            let result: Itemset<T>[] = this._fpGrowth(tree,this._transactions.length);
 
             if(cb) cb(result);
             resolve(result);

@@ -1,13 +1,16 @@
 import { FPNode } from './fpnode';
-import { ItemsCount } from './items-count';
 
-interface FPNodeMap<T> {
+interface IFPNodeMap<T> {
     [stringifiedItem: string]: FPNode<T>
 }
 
 export interface IPrefixPath<T> {
     path: T[],
     support: number
+}
+
+export interface ItemsCount {
+    [stringifiedItem: string]: number
 }
 
 export class FPTree<T> {
@@ -32,12 +35,12 @@ export class FPTree<T> {
     /**
      * All first nodes (of different items) inserted in the FPTree (Heads of node-links).
      */
-    private _firstInserted: FPNodeMap<T> = {};
+    private _firstInserted: IFPNodeMap<T> = {};
 
     /**
      * All last nodes (of different items) inserted in the FPTree (Foots of node-links).
      */
-    private _lastInserted: FPNodeMap<T> = {};
+    private _lastInserted: IFPNodeMap<T> = {};
 
     /**
      * FPTree is a frequent-pattern tree implementation. It consists in a compact
@@ -135,7 +138,7 @@ export class FPTree<T> {
         let prefixPaths: IPrefixPath<T>[] = this._getPrefixPaths(start, s, (i: T, count: number) => {
             conditionalTreeSupports[JSON.stringify(i)] = (conditionalTreeSupports[JSON.stringify(i)] || 0) + count;
         });
-        
+
         // FP-Tree is built from the conditional tree supports and the processed prefix paths.
         let ret: FPTree<T> = new FPTree<T>(conditionalTreeSupports,this._support).fromPrefixPaths(prefixPaths);
 
