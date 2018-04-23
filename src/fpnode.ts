@@ -44,14 +44,13 @@ export class FPNode<T> {
         if(!child) {
             child = new FPNode<T>(item,this);
             child.support = support;
-            
+
             this._children.push(child);
             // Calls callback function if any.
             if(onNewChild) onNewChild(child);
         }
-        // Else, just increments the support of the child.
-        else child.support++;
-
+        // Else, increment the support of the child.
+        else child.support += support;
         return child;
     }
 
