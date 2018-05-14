@@ -75,8 +75,8 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
     private _fpGrowth( tree: FPTree<T>, prefixSupport: number, prefix: T[] = [] ): Itemset<T>[] {
         // Test whether or not the FP-Tree is single path.
         // If it is, we can short-cut the mining process pretty efficiently.
-        // TODO: let singlePath: FPNode<T>[] = tree.getSinglePath();
-        // TODO: if(singlePath) return this._handleSinglePath(singlePath, prefix);
+        let singlePath: FPNode<T>[] = tree.getSinglePath();
+        if(singlePath) return this._handleSinglePath(singlePath, prefixSupport, prefix);
 
         // For each header, ordered ascendingly by their support, determining the prefix paths.
         // These prefix paths represent new transactions to mine in a new FPTree.
@@ -101,14 +101,35 @@ export class FPGrowth<T> extends EventEmitter implements IFPGrowthEvents<T> {
 
     /**
      * Handles the mining of frequent itemsets over a single path tree.
+     * Having a single path will generate all the combinations of its sub-paths,
+     * each of which is a frequent pattern of support being the minimal support of the
+     * items in the combination.
      *
-     * @param  {FPNode<T>[]} singlePath The given single path.
-     * @param  {T[]}         prefix     The prefix associated with the path.
-     * @return {Itemset<T>}             The mined itemsets.
+     * @param  {FPNode<T>[]} singlePath    The given single path.
+     * @param  {number}      prefixSupport The support of the current prefix.
+     * @param  {T[]}         prefix        The prefix associated with the path.
+     * @return {Itemset<T>}                The mined itemsets.
      */
-    private _handleSinglePath( singlePath: FPNode<T>[], prefix: T[] ): Itemset<T>[] {
-        // TODO
-        return [];
+    private _handleSinglePath( singlePath: FPNode<T>[], prefixSupport: number, prefix: T[] ): Itemset<T>[] {
+        return singlePath.reduce<Itemset<T>[]>( (itemsets: Itemset<T>[], node: FPNode<T>) => {
+          // Following code is tricky, but it allows us to map all the
+          // combinations of a given single path in a single pass!
+          // Consider the path A-B-C-D-E...
+          // All unique combinations consists in :
+          // A, AB, B, ABC, BC, C...
+          // See the pattern? With each combinations being an itemset of each
+          // own, with its support being the minimal support in the combination of item,
+          // Generating all combination and itemset consists in ...
+
+          return itemsets
+            // - For each item I in the path
+            // --- Push I to the all the existing combinations
+            // --- Concatenate this new array of combinations with the previous one
+            .concat( itemsets.map( (itemset: Itemset<T>) => this._getFrequentItemset(itemset.items.concat(node.item), Math.min(itemset.support, node.support)) ) )
+            // --- Push the single item I to the possible combinations too.
+            // Obviously if a prefix exists, this need to be concatenated to each new single item.
+            .concat( this._getFrequentItemset(prefix.concat(node.item), Math.min(node.support, prefixSupport)) );
+        }, [])
     }
 
     /**
